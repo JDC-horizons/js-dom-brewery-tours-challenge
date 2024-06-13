@@ -1,0 +1,41 @@
+brewery app
+
+state =
+array => raw data: raw data returned from api
+array => initial filtered data: raw data, filtered to include only tourable breweries
+array => filters : filters. initially empty, data will be added by eventlisteners. render function refers here for advanced instruction.
+
+filters: 
+state - object, key with single value.
+type - object, key with one value.
+city - object, array with 1+ values.
+
+
+
+function 1: initialise. 
+> calls data from api, adds to state array 1.
+> filters this data for tourable breweries and adds these to state array 2.
+> no further action
+
+function 2: render card.
+> accepts a brewery object as input and renders card for it.
+> will be used as callback by later functions, looping over an array and calling this for each object inside.
+
+function 3: render page.
+> no input.
+> to be called by essentially every event listener.
+> starts by defining an empty array to use - currentData = []
+> checks state for filters, if found, filter data from state array 2 and add this to currentData. if no filters found, add all data from state array 2 to currentData.
+
+pseudo
+if state.filters.length === 1 {
+  for item in state.data {
+    (if item.state === state.filters.state
+    OR item.type === state.filters.type
+    OR state.filters.cities.includes(item.city)) 
+      add to currentData array
+   }
+for item in currentData {
+renderCard()
+  }
+}
