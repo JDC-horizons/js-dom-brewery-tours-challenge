@@ -28,10 +28,27 @@ async function initialise() {
       state.filtered.push(state.rawData[i]);
     }
   }
+  const stateInput = document.querySelector("#select-state-form");
+  stateInput.addEventListener("submit", (event) => {
+    event.preventDefault();
+    let userInput = document.querySelector("#select-state").value;
+    if (!userInput) {
+      alert("Please enter a state!");
+    }
+    userInput = userInput[0].toUpperCase() + userInput.slice(1);
+    state.currentFilters.state = userInput;
+    renderPage();
+  });
+  const typeInput = document.querySelector("#filter-by-type-form");
+  typeInput.addEventListener("change", () => {
+    state.currentFilters.type = document.querySelector("#filter-by-type").value;
+    renderPage();
+  });
 }
 
 function renderPage() {
   currentData = [];
+  document.querySelector("#breweries-list").innerHTML = "";
   if (
     state.currentFilters.state === null &&
     state.currentFilters.type === null &&
@@ -51,6 +68,9 @@ function renderPage() {
         currentData.push(state.filtered[brewery]);
       }
     }
+  }
+  for (let item in currentData) {
+    renderCard(currentData[item]);
   }
 }
 
