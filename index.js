@@ -2,6 +2,7 @@ let state = {
   rawData: [],
   filtered: [],
   currentFilters: {
+    name: null,
     state: null,
     type: null,
     city: [],
@@ -44,12 +45,22 @@ async function initialise() {
     state.currentFilters.type = document.querySelector("#filter-by-type").value;
     renderPage();
   });
+  const nameInput = document.querySelector("#search-name");
+  nameInput.addEventListener("input", () => {
+    if (nameInput.value === "") {
+      state.currentFilters.name = null;
+    } else {
+      state.currentFilters.name = document.querySelector("#search-name").value;
+    }
+    renderPage();
+  });
 }
 
 function renderPage() {
   currentData = [];
   document.querySelector("#breweries-list").innerHTML = "";
   if (
+    state.currentFilters.name === null &&
     state.currentFilters.state === null &&
     state.currentFilters.type === null &&
     state.currentFilters.city.length === 0
@@ -61,6 +72,9 @@ function renderPage() {
     for (let brewery in state.filtered) {
       let currentBrewery = state.filtered[brewery];
       if (
+        currentBrewery.name
+          .toLowerCase()
+          .includes(state.currentFilters.name.toLowerCase()) ||
         currentBrewery.state_province === state.currentFilters.state ||
         currentBrewery.brewery_type === state.currentFilters.type ||
         state.currentFilters.city.includes(currentBrewery.city)
@@ -68,9 +82,9 @@ function renderPage() {
         currentData.push(state.filtered[brewery]);
       }
     }
-  }
-  for (let item in currentData) {
-    renderCard(currentData[item]);
+    for (let item in currentData) {
+      renderCard(currentData[item]);
+    }
   }
 }
 

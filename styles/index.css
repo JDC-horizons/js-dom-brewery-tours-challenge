@@ -228,3 +228,23 @@ article {
   text-decoration: none;
   font-weight: bold;
 }
+
+#search-by-name-form {
+  background-color: #fbc02d;
+  margin: 10px;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+#search-by-name-form label {
+  margin-left: 10px;
+  font-weight: bold;
+  width: 15%;
+}
+
+#search-by-name-form input {
+  margin: 5px 10px;
+  width: 85%;
+}
