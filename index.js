@@ -6,6 +6,8 @@ let state = {
     state: "",
     type: "",
     city: [],
+    pageNum: 1,
+    pageCount: null,
   },
 };
 
@@ -29,9 +31,11 @@ async function initialise() {
       state.filtered.push(state.rawData[i]);
     }
   }
+
   const stateInput = document.querySelector("#select-state-form");
   stateInput.addEventListener("submit", (event) => {
     event.preventDefault();
+    state.currentFilters.pageNum = 1;
     let userInput = document.querySelector("#select-state").value;
     if (!userInput) {
       alert("Please enter a state!");
@@ -43,16 +47,20 @@ async function initialise() {
       renderPage();
     }
   });
+
   const typeInput = document.querySelector("#filter-by-type-form");
   typeInput.addEventListener("change", () => {
+    state.currentFilters.pageNum = 1;
     state.currentFilters.type = document.querySelector("#filter-by-type").value;
     if (document.querySelector("#filter-by-type").value === "") {
       state.currentFilters.type = "";
     }
     renderPage();
   });
+
   const nameInput = document.querySelector("#search-name");
   nameInput.addEventListener("input", () => {
+    state.currentFilters.pageNum = 1;
     if (nameInput.value === "") {
       state.currentFilters.name = "";
     } else {
@@ -62,8 +70,10 @@ async function initialise() {
     }
     renderPage();
   });
+
   const cityInput = document.querySelector("#filter-by-city-form");
   cityInput.addEventListener("input", () => {
+    state.currentFilters.pageNum = 1;
     const selectedCities = document.querySelectorAll(
       'input[type="checkbox"]:checked'
     );
@@ -73,7 +83,27 @@ async function initialise() {
     state.currentFilters.city = selectedCitiesArray;
     renderPage();
   });
+
+  const pageForward = document.querySelector("#page-forward");
+  pageForward.addEventListener("click", () => {
+    state.currentFilters.pageNum++;
+    if (state.currentFilters.pageNum > state.currentFilters.pageCount) {
+      state.currentFilters.pageNum--;
+    }
+    renderPage();
+  });
+
+  const pageBack = document.querySelector("#page-back");
+  pageBack.addEventListener("click", () => {
+    state.currentFilters.pageNum--;
+    if (state.currentFilters.pageNum <= 0) {
+      state.currentFilters.pageNum = 1;
+    }
+    renderPage();
+  });
+
   renderCities();
+  document.querySelector("#pagination-controls").style.display = "none";
 }
 
 function renderCities() {
@@ -102,9 +132,8 @@ function renderCities() {
 
 function renderPage() {
   currentData = [];
-  console.log(state.currentFilters);
-  console.log(state.filtered);
   document.querySelector("#breweries-list").innerHTML = "";
+  document.querySelector("#page-nums").innerHTML = "";
 
   for (let i = 0; i < state.filtered.length; i++) {
     let thisBrewery = state.filtered[i];
@@ -145,11 +174,21 @@ function renderPage() {
       currentData.push(thisBrewery);
     }
   }
-
-  for (let item in currentData) {
-    renderCard(currentData[item]);
+  document.querySelector("#pagination-controls").style.display = "flex";
+  state.currentFilters.pageCount = Math.ceil(currentData.length / 10);
+  for (let i = 1; i <= state.currentFilters.pageCount; i++) {
+    const pageIcon = document.createElement("p");
+    pageIcon.classList.add("page");
+    pageIcon.textContent = i;
+    document.querySelector("#page-nums").appendChild(pageIcon);
   }
-  console.log(currentData);
+
+  let startingIndex = 10 * (state.currentFilters.pageNum - 1);
+  let paginatedContent = currentData.slice(startingIndex, startingIndex + 10);
+
+  for (let item in paginatedContent) {
+    renderCard(paginatedContent[item]);
+  }
 }
 
 function renderCard(brewery) {

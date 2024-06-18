@@ -259,3 +259,21 @@ article {
   display: grid;
   grid-template-columns: 20px 150px;
 }
+
+#pagination-controls,
+#page-nums {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+  justify-content: center;
+}
+
+#pagination-controls > *:hover {
+  cursor: pointer;
+}
+
+#pagination-controls svg {
+  height: 20px;
+  width: 20px;
+}
