@@ -248,3 +248,14 @@ article {
   margin: 5px 10px;
   width: 85%;
 }
+
+#filter-by-city-form {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}
+
+.city-checkbox {
+  display: grid;
+  grid-template-columns: 20px 150px;
+}

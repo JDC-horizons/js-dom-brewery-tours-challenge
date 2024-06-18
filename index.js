@@ -2,9 +2,9 @@ let state = {
   rawData: [],
   filtered: [],
   currentFilters: {
-    name: null,
-    state: null,
-    type: null,
+    name: "",
+    state: "",
+    type: "",
     city: [],
   },
 };
@@ -35,57 +35,121 @@ async function initialise() {
     let userInput = document.querySelector("#select-state").value;
     if (!userInput) {
       alert("Please enter a state!");
+      state.currentFilters.state = "";
+      renderPage();
+    } else {
+      userInput = userInput[0].toUpperCase() + userInput.slice(1);
+      state.currentFilters.state = userInput;
+      renderPage();
     }
-    userInput = userInput[0].toUpperCase() + userInput.slice(1);
-    state.currentFilters.state = userInput;
-    renderPage();
   });
   const typeInput = document.querySelector("#filter-by-type-form");
   typeInput.addEventListener("change", () => {
     state.currentFilters.type = document.querySelector("#filter-by-type").value;
+    if (document.querySelector("#filter-by-type").value === "") {
+      state.currentFilters.type = "";
+    }
     renderPage();
   });
   const nameInput = document.querySelector("#search-name");
   nameInput.addEventListener("input", () => {
     if (nameInput.value === "") {
-      state.currentFilters.name = null;
+      state.currentFilters.name = "";
     } else {
-      state.currentFilters.name = document.querySelector("#search-name").value;
+      state.currentFilters.name = document
+        .querySelector("#search-name")
+        .value.toLowerCase();
     }
     renderPage();
   });
+  const cityInput = document.querySelector("#filter-by-city-form");
+  cityInput.addEventListener("input", () => {
+    const selectedCities = document.querySelectorAll(
+      'input[type="checkbox"]:checked'
+    );
+    const selectedCitiesArray = Array.from(selectedCities).map(
+      (checkbox) => checkbox.value
+    );
+    state.currentFilters.city = selectedCitiesArray;
+    renderPage();
+  });
+  renderCities();
+}
+
+function renderCities() {
+  let allCities = [];
+  for (let i = 0; i < state.rawData.length; i++) {
+    if (!allCities.includes(state.rawData[i].city)) {
+      allCities.push(state.rawData[i].city);
+    }
+  }
+  allCities.sort();
+  const citiesForm = document.querySelector("#filter-by-city-form");
+  for (let i = 0; i < allCities.length; i++) {
+    const checkboxLabel = document.createElement("label");
+    checkboxLabel.classList.add("city-checkbox");
+    const formCheckbox = document.createElement("input");
+    formCheckbox.setAttribute("type", "checkbox");
+    formCheckbox.setAttribute("name", "city");
+    formCheckbox.setAttribute("value", allCities[i]);
+    checkboxLabel.appendChild(formCheckbox);
+    const checkboxText = document.createElement("p");
+    checkboxText.textContent = allCities[i];
+    checkboxLabel.appendChild(checkboxText);
+    citiesForm.appendChild(checkboxLabel);
+  }
 }
 
 function renderPage() {
   currentData = [];
+  console.log(state.currentFilters);
+  console.log(state.filtered);
   document.querySelector("#breweries-list").innerHTML = "";
-  if (
-    state.currentFilters.name === null &&
-    state.currentFilters.state === null &&
-    state.currentFilters.type === null &&
-    state.currentFilters.city.length === 0
-  ) {
-    for (let brewery in state.filtered) {
-      currentData.push(state.filtered[brewery]);
-    }
-  } else {
-    for (let brewery in state.filtered) {
-      let currentBrewery = state.filtered[brewery];
-      if (
-        currentBrewery.name
-          .toLowerCase()
-          .includes(state.currentFilters.name.toLowerCase()) ||
-        currentBrewery.state_province === state.currentFilters.state ||
-        currentBrewery.brewery_type === state.currentFilters.type ||
-        state.currentFilters.city.includes(currentBrewery.city)
-      ) {
-        currentData.push(state.filtered[brewery]);
+
+  for (let i = 0; i < state.filtered.length; i++) {
+    let thisBrewery = state.filtered[i];
+    let correctData = false;
+    if (state.currentFilters.state !== "") {
+      if (thisBrewery.state_province === state.currentFilters.state) {
+        correctData = true;
+      } else {
+        continue;
       }
     }
-    for (let item in currentData) {
-      renderCard(currentData[item]);
+
+    if (state.currentFilters.type !== "") {
+      if (thisBrewery.brewery_type === state.currentFilters.type) {
+        correctData = true;
+      } else {
+        continue;
+      }
+    }
+
+    if (state.currentFilters.name !== "") {
+      if (thisBrewery.name.toLowerCase().includes(state.currentFilters.name)) {
+        correctData = true;
+      } else {
+        continue;
+      }
+    }
+
+    if (state.currentFilters.city.length > 0) {
+      if (state.currentFilters.city.includes(thisBrewery.city)) {
+        correctData = true;
+      } else {
+        continue;
+      }
+    }
+
+    if (correctData) {
+      currentData.push(thisBrewery);
     }
   }
+
+  for (let item in currentData) {
+    renderCard(currentData[item]);
+  }
+  console.log(currentData);
 }
 
 function renderCard(brewery) {
